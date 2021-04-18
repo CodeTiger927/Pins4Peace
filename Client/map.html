@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    
+    <title>Pins For Peace</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link rel="stylesheet" href="./css/main.css">
+    
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-Piv4xVNRyMGpqkS2by6br4gNJ7DXjqk09RmUpJ8jgGtD7zP9yug3goQfGII0yAns" crossorigin="anonymous"></script>
+    
+  </head>
+  <body>
+      <div class="navBar">
+        <!-- Header -->
+        <img src="../Photos/logo.png" alt="Share Net Logo" style="width: 30%;margin-left:5%;">
+        <p style="float:right;margin-right:2%;margin-top:2.5%;color: rgb(0, 100, 100);font-size: 25px;"><strong>Share to be Aware</strong>: Personal Encounters With Discrimination</p>
+        <br>
+      </div>
+    </div>
+    <div id=RequestFinder>
+      <div class="requestTopBar">
+        <!-- Change this -->
+      
+      </div> 
+      <div id=mapStuff>
+        <style>
+          #map{
+            height:600px;
+            width:100%; }
+
+        </style>
+        <!-- <h1> My Google Map </h1> -->
+        <div id="map"></div>
+        <script>
+        var socket = io();
+        var log;
+        var stories = [];
+
+        //Gets the data and initializes
+        function initialize(){
+            $.get("../data/logs.json",function(data){
+                log = data;
+                parseLog();
+            });
+        } 
+        //Gets the log and starts the map
+        function parseLog() { 
+            stories = log["logs"];
+            initMap();
+        }
+        //Gives Google Maps enough time to initialize
+        setTimeout(initialize,500);
+        
+        //Gets options
+        function initMap(){
+            var options = {
+            zoom:4.3, 
+            center:{lat:39,lng:-96}
+        }
+        //Creates map
+        var map = new google.maps.Map(document.getElementById('map'), options);
+
+        //AddMarker adds a pin with a video attached
+        function addMarker(coords,name,id){
+            //creates the pin
+            var marker = new google.maps.Marker({
+                position:coords,
+                map:map
+                });
+            //info Window with title
+            var infoWindow=new google.maps.InfoWindow({content:'<h3>'+ name +'</h3>'});
+
+            //when the pin is clicked
+            marker.addListener('click', function(){
+              infoWindow.open(map, marker);
+              //SwitchToID adds the video to the HTML
+              //and sends you to the video
+              switchToID(id);
+              
+            });
+        }
+
+        //Adds all of the pins
+        for(var i = 0;i < stories.length;i++) {
+
+            var id = stories[i];
+            if(id["ban"] > 3){
+              continue;
+            }
+            else{
+              //Gets the coordinates and offsets it randomly so markers don't stack.
+              var coords = {"lat":id["lat"]+Math.random()/60,"lng":id["lng"]+Math.random()/60};
+              //Gets the title of the story
+              var title = id["title"];
+              addMarker(coords,title,i);
+            }
+          }
+        }
+
+
+        //Switches the HTML to show the video
+        function switchToID(id) {
+          var viewVideo = $("#viewVideo");
+          viewVideo.addClass("whiteContainer");
+          viewVideo.empty();
+          //Title
+          viewVideo.append("<h2>From " + stories[id]['name'] + ": " + stories[id]["title"] + "</h2>");
+          viewVideo.append("<hr>");
+          //Video
+          viewVideo.append('<video width=100% controls autoplay style="max-height: 800px;"><source src="./videos/' + id + stories[id]['ext'] + '"></video> <br>');
+          //Report Button
+          viewVideo.append('<button type="button"'+ 'onclick = "report(' + id + ')" style = "float:right" class="btn btn-danger">Report Video</button>')
+          if(stories[id]["echoar"] == 1) {
+            viewVideo.append('<img src="./Photos/qr' + id + '.png" style="margin-top: 50px;margin-left: 80px;">');
+            viewVideo.append('<p>Scan the QR Code to view in AR!</p>');
+          }
+          document.getElementById("viewVideo").scrollIntoView()
+        }
+
+        //Sends report to main.js
+        function report(id){
+          socket.emit("reportVideo",id);
+          alert("Video successfully Reported!");
+        }
+    </script>
+
+
+
+        <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyADkEWk0rw92U2RLe3_8z0ejK1MQ-mUs9w&language=en"
+          async defer></script>
+      </div>
+      <!-- Where the Video Goes -->
+       <div id="currentlyViewingRequest" style="float:none; margin-left: 3em;">
+        <div class="" style="margin-left: 120px;margin-top: 50px;max-height: 100%;text-align: center;" id="viewVideo">
+        </div>
+
+
+          <div class="whiteContainer" style="margin-left: 120px;margin-top: 50px; padding-bottom:20px">
+            <!--style="color:#696969;outline:3px solid #696969; padding:1em; float:none;"-->
+
+            <!--Submission Area -->
+
+            <h2>Upload Your Experience Here:</h2>
+            <hr>
+            <form method="post" action="/addStory" enctype="multipart/form-data"> 
+              <!--File Upload -->
+              <label for="fileUpload" style="font-size: 20px;"><b>Upload your video</b></label><br>
+              <div class="custom-file" style="width: 60%" name="fileUpload">
+                <input type="file" class="custom-file-input" id="customFile" name="video">
+                <label class="custom-file-label" for="customFile">Choose file</label>
+              </div>
+              <!--Other Text Areas-->
+              <!--Name-->
+              <br> <br>
+              <label for="Name" style="font-size: 20px;"><b>Name</b></label>
+              <input type="text" class="form-control" id="Name" name="Name" placeholder="Enter Name" style="width: 60%">
+
+              <br>
+              <!-- Address -->
+              <label for="Name" style="font-size: 20px;"><b>Address (of Incident):</b></label>
+
+              <input type="text" class="form-control" id="Address" name="Address" placeholder="Enter Address" style="width: 60%"><br>
+              <!-- Title -->
+              <label for="Name" style="font-size: 20px;"><b>Title/Description:</b></label><br>
+
+
+              <input type="text" class="form-control" id="Title" name="Title" placeholder="Enter Title" style="width: 60%"><br>
+              
+              <!-- Submit Button -->
+
+              <input type="submit" value = "Submit your Story" style = "font-size:18px;font-family:'Lato',sans-serif" class = "button"> <br>
+              <br>
+              <!-- Extra Info-->
+              <p> If you know someone who has experienced an incident, you may tell their story with their consent. </p>
+              <p> Additionally, if you do not wish to reveal your identity, feel free to record a video without your face and or enter a psuedonym to protect your personal information. </p>
+            </form>
+            <script>
+            
+            $(".custom-file-input").on("change", function() {
+            var fileName = $(this).val().split("\\").pop();
+            $(this).siblings(".custom-file-label").addClass("selected").html(fileName);
+            });
+            </script>
+
+
+            <br>
+          </div>
+        
+          <br>
+      </div>
+
+      <!-- About Us Bar -->
+      <div class="topTitle">
+          About Us
+      </div>
+      <div class = "whiteContainer" style = "padding-left: 90px; padding-right:90px; padding-top: 30px; padding-bottom: 30px; width:100%;margin-left: 0px; margin-bottom:0px" name = "bottomBar" >
+        <p> We are a group of high school students whose mission is to share stories about racism and discrimination in order to spread both global and local awareness. We believe hearing others' stories is a vital part of maintaining empathy and keeping an open perspective. Click on a pin to explore someone's narrative.</p>
+      </div>
+    </div>
+  </body>
+</html>
