@@ -1,5 +1,5 @@
 # Pins4Peace
-A website for people to share their encounter with discrimination.
+A website https://pins4peace.space/ for people to share their encounter with discrimination.
 
 ## Start the web-app server with the following command (you need to install nodejs first)
 `````shell
