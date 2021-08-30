@@ -10,7 +10,7 @@
     <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.1.2/socket.io.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-Piv4xVNRyMGpqkS2by6br4gNJ7DXjqk09RmUpJ8jgGtD7zP9yug3goQfGII0yAns" crossorigin="anonymous"></script>
     
   </head>
@@ -42,52 +42,51 @@
         var stories = [];
 
         //Gets the data and initializes
-        function initialize(){
-            $.get("../data/logs.json",function(data){
-                log = data;
-                parseLog();
-            });
+        function initialize() {
+          $.get("../data/logs.json",function(data){
+              log = data;
+              parseLog();
+          });
         } 
         //Gets the log and starts the map
         function parseLog() { 
-            stories = log["logs"];
-            initMap();
+          stories = log["logs"];
+          initMap();
         }
         //Gives Google Maps enough time to initialize
         setTimeout(initialize,500);
         
         //Gets options
-        function initMap(){
-            var options = {
-            zoom:4.3, 
-            center:{lat:39,lng:-96}
+        function initMap() {
+          var options = {
+          zoom:4.3, 
+          center:{lat:39,lng:-96}
         }
         //Creates map
         var map = new google.maps.Map(document.getElementById('map'), options);
 
         //AddMarker adds a pin with a video attached
-        function addMarker(coords,name,id){
-            //creates the pin
-            var marker = new google.maps.Marker({
-                position:coords,
-                map:map
-                });
-            //info Window with title
-            var infoWindow=new google.maps.InfoWindow({content:'<h3>'+ name +'</h3>'});
+        function addMarker(coords,name,id) {
+          //creates the pin
+          var marker = new google.maps.Marker({
+              position:coords,
+              map:map
+              });
+          //info Window with title
+          var infoWindow=new google.maps.InfoWindow({content:'<h3>'+ name +'</h3>'});
 
-            //when the pin is clicked
-            marker.addListener('click', function(){
-              infoWindow.open(map, marker);
-              //SwitchToID adds the video to the HTML
-              //and sends you to the video
-              switchToID(id);
-              
-            });
+          //when the pin is clicked
+          marker.addListener('click', function(){
+            infoWindow.open(map, marker);
+            //SwitchToID adds the video to the HTML
+            //and sends you to the video
+            switchToID(id);
+            
+          });
         }
 
         //Adds all of the pins
         for(var i = 0;i < stories.length;i++) {
-
             var id = stories[i];
             if(id["ban"] > 3){
               continue;
@@ -128,9 +127,6 @@
           alert("Video successfully Reported!");
         }
     </script>
-
-
-
         <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyADkEWk0rw92U2RLe3_8z0ejK1MQ-mUs9w&language=en"
           async defer></script>
       </div>
