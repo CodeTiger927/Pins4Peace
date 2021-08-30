@@ -1,10 +1,28 @@
 // Pins4Peace
-
+var fs = require("fs");
 var express = require('express');
 var app = express();
-var http = require('http').createServer(app);
+
+var http = require('http').createServer(function (req, res) {
+	res.writeHead(301, { "Location": "https://" + req.headers['host'] + req.url });
+	res.end();
+});
+// var http = require('http').createServer(app);
+
+const privateKey = fs.readFileSync('/etc/letsencrypt/live/pins4peace.space/privkey.pem', 'utf8');
+const certificate = fs.readFileSync('/etc/letsencrypt/live/pins4peace.space/cert.pem', 'utf8');
+const ca = fs.readFileSync('/etc/letsencrypt/live/pins4peace.space/chain.pem', 'utf8');
+
+const credentials = {
+	key: privateKey,
+	cert: certificate,
+	ca: ca
+};
+
+var https = require('https').createServer(credentials,app);
+var io = require('socket.io')(https);
+
 const path = require('path');
-var io = require('socket.io')(http);
 
 const axios = require('axios')
 
@@ -56,8 +74,11 @@ app.post('/addStory', upload.single("video"), function (req, res, next) {
 	return res.redirect('/');
 });
 
-http.listen(5000,() => {
-	console.log('listening on *:5000');
+http.listen(80,() => {
+	console.log('listening on *:80');
+});
+https.listen(443,() => {
+ 	console.log('listening on *:443');
 });
 
 // File system
