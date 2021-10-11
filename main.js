@@ -58,6 +58,11 @@ io.on('connection',(socket) => {
 		updateJSON();
 	});
 
+	socket.on('addReaction',(id,reaction) => {
+		data["logs"][id]["reactions"][reaction]++;
+		updateJSON();
+	});
+
 });
 
 app.use("/videos", express.static(__dirname + '/videos'));
@@ -125,7 +130,7 @@ function addStory(address, name, title, ext) {
 				"title": title,
 				"ext": ext,
 				"ban": 0,
-				"echoar": -1
+				"reactions":[0,0,0,0,0]
 			});
 			updateJSON();
 

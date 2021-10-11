@@ -112,3 +112,27 @@ a{
     font-family: 'Tahoma';
     color: white;
 }
+
+.reactions {
+	margin-top: 60px;
+	text-align: center;
+}
+
+.emojis {
+	width: 60%;
+	margin-left: 20%;
+}
+
+.emoji {
+	width: 14%;
+	display: inline-flex;
+}
+
+.caption {
+    margin-top: 10px;
+}
+
+.topnumber {
+	font-size: 10px;
+	width: 20px;
+}

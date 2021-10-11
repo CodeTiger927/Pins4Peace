@@ -72,7 +72,7 @@
           initMap();
         }
         //Gives Google Maps enough time to initialize
-        setTimeout(initialize,500);
+        setTimeout(initialize,1000);
         
         //Gets options
         function initMap() {
@@ -119,9 +119,14 @@
           }
         }
 
+        function addReaction(id,re) {
+          socket.emit("addReaction",id,re);
+          setTimeout(initialize,300);
+          setTimeout(function() {switchToID(id,false)},600);
+        }
 
         //Switches the HTML to show the video
-        function switchToID(id) {
+        function switchToID(id,scroll = true) {
           var viewVideo = $("#viewVideo");
           viewVideo.addClass("whiteContainer");
           viewVideo.empty();
@@ -136,7 +141,8 @@
             viewVideo.append('<img src="./Photos/qr' + id + '.png" style="margin-top: 50px;margin-left: 80px;">');
             viewVideo.append('<p>Scan the QR Code to view in AR!</p>');
           }
-          document.getElementById("viewVideo").scrollIntoView()
+          viewVideo.append('<div class="reactions"><div class="emoji"><a style="width: 90%;" href="javascript:addReaction(' + id + ',0);"><img src="/Photos/heart.svg" class="emojis"></a><p class="topnumber">' + stories[id]['reactions'][0] + '</p></div><div class="emoji"><a style="width: 90%;" href="javascript:addReaction(' + id + ',1);"><img src="/Photos/hug.png" class="emojis"></a><p class="topnumber">' + stories[id]['reactions'][1] + '</p></div><div class="emoji"><a style="width: 90%;" href="javascript:addReaction(' + id + ',2);"><img src="/Photos/cry.svg" class="emojis"></a><p class="topnumber">' + stories[id]['reactions'][2] + '</p></div><div class="emoji"><a style="width: 90%;" href="javascript:addReaction(' + id + ',3);"><img src="/Photos/yay.svg" class="emojis"></a><p class="topnumber">' + stories[id]['reactions'][3] + '</p></div><div class="emoji"><a style="width: 90%;" href="javascript:addReaction(' + id + ',4);"><img src="/Photos/weary.svg" class="emojis"></a><p class="topnumber">' + stories[id]['reactions'][4] + '</p></div></div>');
+          if(scroll) document.getElementById("viewVideo").scrollIntoView()
         }
 
         //Sends report to main.js
